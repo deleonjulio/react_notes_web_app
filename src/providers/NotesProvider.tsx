@@ -47,12 +47,14 @@ const initialNotes: Notes = {
   oldest_note: null
 };
 
-// Create context with appropriate types
 const NotesContext = createContext<Notes | undefined>(undefined);
 const NotesDispatchContext = createContext<React.Dispatch<NotesAction> | undefined>(undefined);
 
-// NotesProvider component with typed props
-export function NotesProvider({ children }: { children: ReactNode }) {
+interface NotesProviderProps {
+  readonly children: ReactNode;
+}
+
+export function NotesProvider({ children }: NotesProviderProps) {
   const [notes, dispatch] = useReducer(notesReducer, initialNotes);
 
   return (

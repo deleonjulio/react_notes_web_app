@@ -277,8 +277,6 @@ const TopMenu = ({preloadNotesMutate, scrollToTop, editor}: {preloadNotesMutate:
   useEffect(() => {
     const timeOut = setTimeout(() => {
       if(notes.is_searching && notes.search_string.length) {
-        notesDispatch
-        
         searchNoteMutate(notes.search_string)
       }
     }, 500)

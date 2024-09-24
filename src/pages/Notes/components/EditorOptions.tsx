@@ -3,7 +3,12 @@ import { Popover, PopoverButton, PopoverPanel, CloseButton } from '@headlessui/r
 import { Editor } from "@tiptap/react"
 import { Button } from "../../../components"
 
-export default function EditorOptions({editor, selected}: {editor: Editor | null, selected: boolean}) {
+interface Props { 
+  editor: Editor | null;
+  selected: boolean;
+}
+
+export default function EditorOptions({editor, selected}: Readonly<Props>) {
   return (
     <div>
       <Popover>
@@ -16,7 +21,7 @@ export default function EditorOptions({editor, selected}: {editor: Editor | null
           className="mt-1 w-52 divide-y divide-black/5 rounded-lg border-2 bg-stone-100 text-sm/6 transition duration-200 ease-in-out [--anchor-gap:var(--spacing-5)] data-[closed]:-translate-y-1 data-[closed]:opacity-0"
         >
           <div className="flex justify-evenly p-2">
-            <CloseButton as={() => (
+            <CloseButton>
               <Button 
                 color="transparent-gray-no-hover" 
                 className={`${editor?.isActive('bold') ? 'bg-amber-200' : ''} ${selected ? 'opacity-100' : 'opacity-50'}`}
@@ -24,8 +29,8 @@ export default function EditorOptions({editor, selected}: {editor: Editor | null
                 label={<PiTextBBold size={20} />} 
                 onClick={() => editor?.chain().focus().toggleBold().run()} 
               /> 
-            )}/>
-            <CloseButton as={() => (
+            </CloseButton>
+            <CloseButton>
               <Button 
                 color="transparent-gray-no-hover" 
                 className={`${editor?.isActive('italic') ? 'bg-amber-200' : ''}`}
@@ -33,8 +38,8 @@ export default function EditorOptions({editor, selected}: {editor: Editor | null
                 label={<PiTextItalic size={20} />} 
                 onClick={() => editor?.chain().focus().toggleItalic().run()} 
               /> 
-            )}/>
-            <CloseButton as={() => (
+            </CloseButton>
+            <CloseButton>
               <Button 
                 color="transparent-gray-no-hover" 
                 className={`${editor?.isActive('underline') ? 'bg-amber-200' : ''}`}
@@ -42,8 +47,8 @@ export default function EditorOptions({editor, selected}: {editor: Editor | null
                 label={<PiTextUnderline size={20} />} 
                 onClick={() => editor?.chain().focus().toggleUnderline().run()} 
               /> 
-            )}/>
-            <CloseButton as={() => (
+            </CloseButton>
+            <CloseButton>
               <Button 
                 color="transparent-gray-no-hover" 
                 className={`${editor?.isActive('strike') ? 'bg-amber-200' : ''}`}
@@ -51,10 +56,10 @@ export default function EditorOptions({editor, selected}: {editor: Editor | null
                 label={<PiTextStrikethrough size={20} />} 
                 onClick={() => editor?.chain().focus().toggleStrike().run()} 
               /> 
-            )}/>
+            </CloseButton>
           </div>
           <div className="flex flex-col gap-1 p-2">
-            <CloseButton as={() => (
+            <CloseButton>
               <Button 
                 block
                 color="transparent-gray-no-hover" 
@@ -63,8 +68,8 @@ export default function EditorOptions({editor, selected}: {editor: Editor | null
                 label="Bulleted List" 
                 onClick={() => editor?.chain().focus().toggleBulletList().run()} 
               /> 
-            )}/>
-            <CloseButton as={() => (
+            </CloseButton>
+            <CloseButton>
               <Button 
                 block
                 color="transparent-gray-no-hover" 
@@ -73,10 +78,10 @@ export default function EditorOptions({editor, selected}: {editor: Editor | null
                 label="Numbered List" 
                 onClick={() => editor?.chain().focus().toggleOrderedList().run()} 
               /> 
-            )}/>
+            </CloseButton>
           </div>
           <div className="flex flex-col gap-1 p-2">
-            <CloseButton disabled={!editor?.can().setBlockquote()} as={() => (
+            <CloseButton disabled={!editor?.can().setBlockquote()}>
               <Button 
                 block
                 color="transparent-gray-no-hover" 
@@ -85,7 +90,7 @@ export default function EditorOptions({editor, selected}: {editor: Editor | null
                 label="Block Quote" 
                 onClick={() => editor?.chain().focus().toggleBlockquote().run()} 
               /> 
-            )}/>
+            </CloseButton>
           </div>
         </PopoverPanel>
       </Popover>
