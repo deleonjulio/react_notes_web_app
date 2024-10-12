@@ -28,7 +28,7 @@ export const Notes = () => {
   const notes = useNotes()
   const notesDispatch = useNotesDispatch()
   const navigate = useNavigate()
-  const itemRef = useRef<HTMLLIElement>(null);
+  const itemRef = useRef<HTMLDivElement>(null);
   const dateRef = useRef<HTMLDivElement>(null)
   const selectedNotes = notes.list.find((note) => note.id === notes.selected)
   const searchedSelectedNotes =  notes.searched_list.find((note) => note.id === notes.searched_selected)
