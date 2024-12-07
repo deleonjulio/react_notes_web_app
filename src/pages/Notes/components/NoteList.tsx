@@ -6,7 +6,7 @@ import { Notes } from "../../../providers/NotesProvider";
 interface Props { 
   notes: Notes; 
   itemRef: LegacyRef<HTMLDivElement>;
-  handleChange: (id: number) => void;
+  handleChange: (_id: string) => void;
 }
 
 export default function NoteList ({ notes, itemRef, handleChange }: Readonly<Props>) {
@@ -14,14 +14,14 @@ export default function NoteList ({ notes, itemRef, handleChange }: Readonly<Pro
     if(notes.is_searching) {
       return notes.searched_list.map((data) => (
         <button 
-          key={data.id}
-          onClick={() => handleChange(data.id)}
+          key={data._id}
+          onClick={() => handleChange(data._id)}
           className="w-full text-left"
         >
           <div
-            ref={data.id === notes.searched_selected ? itemRef : null}
+            ref={data._id === notes.searched_selected ? itemRef : null}
             className={`select-none px-4 py-2 border-b ${
-              notes.searched_selected === data.id ? 'bg-amber-200' : 'cursor-pointer'
+              notes.searched_selected === data._id ? 'bg-amber-200' : 'cursor-pointer'
             }`}
           >
             <span className="text-xs font-bold">
@@ -37,15 +37,15 @@ export default function NoteList ({ notes, itemRef, handleChange }: Readonly<Pro
     
     return notes.list.map((data) => (
       <button 
-        key={data.id}
-        onClick={() => handleChange(data.id)}
+        key={data._id}
+        onClick={() => handleChange(data._id)}
         className="w-full text-left"
       >
         <div
-          ref={data.id === notes.selected ? itemRef : null}
-          key={data.id}
+          ref={data._id === notes.selected ? itemRef : null}
+          key={data._id}
           className={`select-none px-4 py-2 border-b ${
-            notes.selected === data.id ? 'bg-amber-200' : 'cursor-pointer'
+            notes.selected === data._id ? 'bg-amber-200' : 'cursor-pointer'
           }`}
         >
           <span className="text-xs font-bold">

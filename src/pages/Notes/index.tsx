@@ -30,8 +30,8 @@ export const Notes = () => {
   const navigate = useNavigate()
   const itemRef = useRef<HTMLDivElement>(null);
   const dateRef = useRef<HTMLDivElement>(null)
-  const selectedNotes = notes.list.find((note) => note.id === notes.selected)
-  const searchedSelectedNotes =  notes.searched_list.find((note) => note.id === notes.searched_selected)
+  const selectedNotes = notes.list.find((note) => note._id === notes.selected)
+  const searchedSelectedNotes =  notes.searched_list.find((note) => note._id === notes.searched_selected)
 
   const scrollToTop = () => {
     setTimeout(() => {
@@ -46,6 +46,7 @@ export const Notes = () => {
   const { data, refetch } = useQuery({
     queryKey: ['notes'],
     queryFn: getNotes,
+    retry: false,
     enabled: user.authenticated,
     refetchOnWindowFocus: false
   })
@@ -53,15 +54,15 @@ export const Notes = () => {
   const { mutate: updateNoteMutate } = useMutation({
     mutationFn: updateNote,
     onSuccess: async (response) => {
-      const latestNoteVisible = notes.list.find((note) => note.id === notes.top_note)
+      const latestNoteVisible = notes.list.find((note) => note._id === notes.top_note)
       if(latestNoteVisible) {
         const updatedNote = response.data.data
         notesDispatch({type: "UPDATE", updatedNote})
-        notesDispatch({type: "UPDATE_TOP_NOTE", id: updatedNote?.id})
-        notesDispatch({type: "UPDATE_LATEST_NOTE", id: updatedNote?.id})
+        notesDispatch({type: "UPDATE_TOP_NOTE", _id: updatedNote?._id})
+        notesDispatch({type: "UPDATE_LATEST_NOTE", _id: updatedNote?._id})
         if(notes.is_searching) {
           const updatedNotes = notes.searched_list.map((note) => {
-            if(note.id === notes?.searched_selected) {
+            if(note._id === notes?.searched_selected) {
               return updatedNote
             }
             return { ...note }
@@ -85,10 +86,10 @@ export const Notes = () => {
     onSuccess: async (response, variable) => {
       if(variable.position === "BOTTOM") {
         notesDispatch({type: "LIST", list: [...notes.list, ...response.data.data]})
-        notesDispatch({type: "UPDATE_OLDEST_NOTE", id: response.data.oldest_note.id})
+        notesDispatch({type: "UPDATE_OLDEST_NOTE", _id: response.data.oldest_note._id})
       } else {
         notesDispatch({type: "LIST", list: [...response.data.data, ...notes.list]})
-        notesDispatch({type: "UPDATE_LATEST_NOTE", id: response.data.latest_note.id})
+        notesDispatch({type: "UPDATE_LATEST_NOTE", _id: response.data.latest_note._id})
       }
     }, onError: (error: AxiosError) => {
       if(error?.response?.status === 401) {
@@ -122,21 +123,21 @@ export const Notes = () => {
 
       if (isAtBottom) {
         const lastElement = notes.list[notes.list.length - 1]
-        if(lastElement.id !== notes.oldest_note) {
+        if(lastElement._id !== notes.oldest_note) {
           loadMoreNotesMutate({position: "BOTTOM", date: lastElement.date_updated})
         }
       }
 
       if (isAtTop) {
         const firstElement = notes.list[0]
-        if(firstElement.id !== notes.latest_note) {
+        if(firstElement._id !== notes.latest_note) {
           loadMoreNotesMutate({position: "TOP", date: firstElement.date_updated})
         }
       }
     }
   };
 
-  const handleChange = (noteId: number) => {
+  const handleChange = (noteId: string) => {
     if(notes.is_searching) {
       notesDispatch({type: "SEARCHED_SELECT", searched_selected: noteId})
     }
@@ -144,7 +145,7 @@ export const Notes = () => {
   }
 
   const debouncedOnUpdate = useDebouncedCallback(({ editor }) => {
-    updateNoteMutate({content: editor.getHTML(), noteId: notes.selected})
+    updateNoteMutate({content: editor.getHTML(), content_plain_text: editor.getText(), noteId: notes.selected})
   }, 500);
 
   const editor = useEditor({
@@ -176,8 +177,8 @@ export const Notes = () => {
   useEffect(() => {
     if(data?.data?.data) {
       notesDispatch({type: "LIST", list: data?.data?.data})
-      notesDispatch({type: "UPDATE_TOP_NOTE", id: data?.data?.data[0]?.id})
-      notesDispatch({type: "UPDATE_LATEST_NOTE", id: data?.data?.data[0]?.id})
+      notesDispatch({type: "UPDATE_TOP_NOTE", _id: data?.data?.data[0]?._id})
+      notesDispatch({type: "UPDATE_LATEST_NOTE", _id: data?.data?.data[0]?._id})
     }
   }, [data?.data?.data])
 
@@ -196,7 +197,7 @@ export const Notes = () => {
         </div>
           <div className="w-2/3 flex-grow overflow-y-auto bg-white px-4 border border-gray-50">
             {notes.searched_selected && <div ref={dateRef} className="select-none flex justify-center"><span className="text-xs">{dayjs(searchedSelectedNotes?.date_updated).format("MMMM DD, YYYY [at] hh:mm A")}</span></div>}
-            {notes.searched_selected && <EditorContent key={searchedSelectedNotes?.id} editor={editor} />}
+            {notes.searched_selected && <EditorContent key={searchedSelectedNotes?._id} editor={editor} />}
           </div>
         </div>
       ) : (
@@ -208,7 +209,7 @@ export const Notes = () => {
         </div>
         <div className="w-2/3 flex-grow overflow-y-auto bg-white px-4 border border-gray-50">
           {notes.selected && <div ref={dateRef} className="select-none flex justify-center"><span className="text-xs font-light text-gray-400">{dayjs(selectedNotes?.date_updated).format("MMMM DD, YYYY [at] hh:mm A")}</span></div>}
-          {notes.selected && <EditorContent key={selectedNotes?.id} editor={editor} />}
+          {notes.selected && <EditorContent key={selectedNotes?._id} editor={editor} />}
         </div>
       </div>
       )}
@@ -237,7 +238,7 @@ const TopMenu = ({preloadNotesMutate, scrollToTop, editor}: {preloadNotesMutate:
     mutationFn: createNote,
     onSuccess: async ({ data }) => {
       const newNote = data.data
-      notesDispatch({type: "CREATE", list: [newNote, ...notes.list], selected: newNote.id})
+      notesDispatch({type: "CREATE", list: [newNote, ...notes.list], selected: newNote._id})
       scrollToTop()
       setTimeout(() => editor?.view.dom.focus(), 100)
     }, onError: (error: AxiosError) => {
@@ -284,9 +285,9 @@ const TopMenu = ({preloadNotesMutate, scrollToTop, editor}: {preloadNotesMutate:
     if(!notes.is_searching) {
       //if user select a note from search result then emptied out the search bar
       if(notes.searched_selected) {
-        const noteExist = notes.list.find((note) => note.id === notes.searched_selected)
+        const noteExist = notes.list.find((note) => note._id === notes.searched_selected)
         if(!noteExist) {
-          const date = notes.searched_list.find((note) => note.id === notes.searched_selected)?.date_updated
+          const date = notes.searched_list.find((note) => note._id === notes.searched_selected)?.date_updated
           if(date) {
             preloadNotesMutate({date})
           }

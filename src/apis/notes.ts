@@ -4,9 +4,9 @@ export const createNote = () => POST('/note')
 
 export const getNotes = () => GET('/getNotes')
 
-export const updateNote = (data: {content: string, noteId: number | null}) => PUT('/note', data)
+export const updateNote = (data: {content: string, content_plain_text: string, noteId: string | null}) => PUT('/note', data)
 
-export const deleteNote = (noteId: number | null) => DELETE(`/note/${noteId}`)
+export const deleteNote = (noteId: string | null) => DELETE(`/note/${noteId}`)
 
 export const searchNote = (searchString: string) => GET(`/note?search_string=${searchString}`)
 

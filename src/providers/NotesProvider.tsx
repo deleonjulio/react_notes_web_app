@@ -1,38 +1,38 @@
 import React, { useReducer, useContext, createContext, type ReactNode } from 'react';
 
 export interface Note {
-  id: number;
+  _id: string;
   date_updated: Date;
   content: string;
 }
 
 export interface Notes {
-  top_note: number | null
+  top_note: string | null
   list: Note[];
-  selected: number | null;
+  selected: string | null;
   is_searching: boolean;
   search_string: string;
   searched_list: Note[];
-  searched_selected: number | null;
-  latest_note: number | null;
-  oldest_note: number | null;
+  searched_selected: string | null;
+  latest_note: string | null;
+  oldest_note: string | null;
 }
 
 type NotesAction =
-  | { type: 'CREATE'; list: Note[]; selected: number | null }
+  | { type: 'CREATE'; list: Note[]; selected: string | null }
   | { type: 'UPDATE'; updatedNote: Note; }
   | { type: 'DELETE'; }
   | { type: 'DELETE_SEARCH'; }
   | { type: 'LIST'; list: Note[]; }
   | { type: 'SEARCHED_LIST'; searched_list: Note[]; }
-  | { type: 'SELECT'; selected: number | null }
-  | { type: 'SEARCHED_SELECT'; searched_selected: number | null }
+  | { type: 'SELECT'; selected: string | null }
+  | { type: 'SEARCHED_SELECT'; searched_selected: string | null }
   | { type: 'RESET'; }
   | { type: 'RESET_SEARCH'; }
   | { type: 'SEARCH'; search_string: string }
-  | { type: 'UPDATE_TOP_NOTE'; id: number }
-  | { type: 'UPDATE_LATEST_NOTE'; id: number }
-  | { type: 'UPDATE_OLDEST_NOTE'; id: number }
+  | { type: 'UPDATE_TOP_NOTE'; _id: string }
+  | { type: 'UPDATE_LATEST_NOTE'; _id: string }
+  | { type: 'UPDATE_OLDEST_NOTE'; _id: string }
 
 
 const initialNotes: Notes = {
@@ -91,14 +91,14 @@ const notesReducer = (state: Notes, action: NotesAction): Notes => {
         selected: action.selected,
       };
     case 'UPDATE': {
-      const updatedNotes = state.list.filter(note => note.id !== action.updatedNote?.id)
+      const updatedNotes = state.list.filter(note => note._id !== action.updatedNote?._id)
       return {
         ...state,
         list: [action.updatedNote, ...updatedNotes],
       };
     }
     case 'DELETE': {
-      const updatedNotes = state.list.filter(note => note.id !== state.selected)
+      const updatedNotes = state.list.filter(note => note._id !== state.selected)
       return {
         ...state,
         list: [...updatedNotes],
@@ -106,7 +106,7 @@ const notesReducer = (state: Notes, action: NotesAction): Notes => {
       };
     }
     case 'DELETE_SEARCH': {
-      const updatedNotes = state.searched_list.filter(note => note.id !== state.searched_selected)
+      const updatedNotes = state.searched_list.filter(note => note._id !== state.searched_selected)
       return {
         ...state,
         searched_list: [...updatedNotes],
@@ -143,17 +143,17 @@ const notesReducer = (state: Notes, action: NotesAction): Notes => {
     case 'UPDATE_TOP_NOTE':
       return {
         ...state,
-        top_note: action.id,
+        top_note: action._id,
       };
     case 'UPDATE_LATEST_NOTE':
       return {
         ...state,
-        latest_note: action.id,
+        latest_note: action._id,
       };
     case 'UPDATE_OLDEST_NOTE':
       return {
         ...state,
-        oldest_note: action.id,
+        oldest_note: action._id,
       };
     case 'RESET':
       return initialNotes;
