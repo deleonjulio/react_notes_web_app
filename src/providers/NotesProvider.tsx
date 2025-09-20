@@ -119,9 +119,16 @@ const notesReducer = (state: Notes, action: NotesAction): Notes => {
         list: [...action.list],
       };
     case 'SEARCHED_LIST':
+      // unselect note if user search again and the current selected searched note is not included from the list
+      let currentSelectedExist = false
+      if(action.searched_list.find((list) => list._id === state.searched_selected)) {
+        currentSelectedExist = true
+      }
       return {
         ...state,
         searched_list: [...action.searched_list],
+        searched_selected: currentSelectedExist ? state.searched_selected : null,
+        selected: currentSelectedExist ? state.searched_selected : null
       };
     case 'SELECT':
       return {

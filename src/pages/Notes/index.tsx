@@ -122,16 +122,24 @@ export const Notes = () => {
       const isAtTop = target.scrollTop === 0;
 
       if (isAtBottom) {
-        const lastElement = notes.list[notes.list.length - 1]
-        if(lastElement._id !== notes.oldest_note) {
-          loadMoreNotesMutate({position: "BOTTOM", date: lastElement.date_updated})
+        if(notes?.is_searching) {
+
+        } else {
+          const lastElement = notes.list[notes.list.length - 1]
+          if(lastElement._id !== notes.oldest_note) {
+            loadMoreNotesMutate({position: "BOTTOM", date: lastElement.date_updated})
+          }
         }
       }
 
       if (isAtTop) {
-        const firstElement = notes.list[0]
-        if(firstElement._id !== notes.latest_note) {
-          loadMoreNotesMutate({position: "TOP", date: firstElement.date_updated})
+        if(notes.is_searching) {
+
+        } else {
+          const firstElement = notes.list[0]
+          if(firstElement._id !== notes.latest_note) {
+            loadMoreNotesMutate({position: "TOP", date: firstElement.date_updated})
+          }
         }
       }
     }
@@ -192,9 +200,11 @@ export const Notes = () => {
       <TopMenu preloadNotesMutate={preloadNotesMutate} scrollToTop={scrollToTop} editor={editor} />
       {notes.is_searching ? (
         <div className="flex flex-grow overflow-hidden">
-          <div className="w-1/3 max-w-[200px] min-w-[200px] overflow-y-auto border border-gray-200">
-          <NoteList notes={notes} itemRef={itemRef} handleChange={handleChange}/>
-        </div>
+          <div onScroll={handleScroll} className="w-1/3 max-w-[200px] min-w-[200px] overflow-y-auto border border-gray-200">
+            {loadMoreNotesIsPending && <LoadMoreIndicator />}
+            <NoteList notes={notes} itemRef={itemRef} handleChange={handleChange}/>
+            {loadMoreNotesIsPending && <LoadMoreIndicator />}
+          </div>
           <div className="w-2/3 flex-grow overflow-y-auto bg-white px-4 border border-gray-50">
             {notes.searched_selected && <div ref={dateRef} className="select-none flex justify-center"><span className="text-xs">{dayjs(searchedSelectedNotes?.date_updated).format("MMMM DD, YYYY [at] hh:mm A")}</span></div>}
             {notes.searched_selected && <EditorContent key={searchedSelectedNotes?._id} editor={editor} />}
@@ -266,6 +276,7 @@ const TopMenu = ({preloadNotesMutate, scrollToTop, editor}: {preloadNotesMutate:
   const { mutate: searchNoteMutate } = useMutation({
     mutationFn: searchNote,
     onSuccess: async ({ data }) => {
+      console.log(data?.data)
       notesDispatch({type: "SEARCHED_LIST", searched_list: data?.data})
     }, onError: (error: AxiosError) => {
       if(error?.response?.status === 401) {
